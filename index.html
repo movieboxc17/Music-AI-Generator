@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Music Generator Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #2b2b2b;
+      color: #fff;
+      text-align: center;
+      margin: 50px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #444;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+    .control {
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border-radius: 8px;
+      border: none;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Music Generator</h1>
+    <p>Choose your mood and tempo, and generate a short music sample!</p>
+
+    <div class="control">
+      <label for="mood">Mood:</label>
+      <select id="mood">
+        <option value="happy">Happy</option>
+        <option value="calm">Calm</option>
+      </select>
+    </div>
+
+    <div class="control">
+      <label for="tempo">Tempo:</label>
+      <input type="range" id="tempo" min="60" max="180" step="5" value="120">
+      <span id="tempoDisplay">120</span> BPM
+    </div>
+
+    <button onclick="generateMusic()">Generate Music</button>
+
+    <audio controls id="musicPlayer" style="margin-top: 20px; display: none;">
+      <source id="musicSource" type="audio/wav">
+    </audio>
+  </div>
+
+  <script>
+    // Update the tempo display
+    const tempoInput = document.getElementById('tempo');
+    const tempoDisplay = document.getElementById('tempoDisplay');
+    tempoInput.addEventListener('input', function() {
+      tempoDisplay.textContent = tempoInput.value;
+    });
+
+    async function generateMusic() {
+      const mood = document.getElementById('mood').value;
+      const tempo = document.getElementById('tempo').value;
+
+      const response = await fetch('/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mood, tempo }),
+      });
+
+      const data = await response.json();
+      const musicPlayer = document.getElementById('musicPlayer');
+      const musicSource = document.getElementById('musicSource');
+      
+      // Set the music data in the audio player
+      musicSource.src = `data:audio/wav;base64,${data.music}`;
+      musicPlayer.style.display = 'block';
+      musicPlayer.load();
+    }
+  </script>
+</body>
+</html>
